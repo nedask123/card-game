@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
 
-require_once('src/Cards.php');
-require_once('src/Card.php');
-require_once('src/Player.php');
+namespace App;
+
+require_once('autoload.php');
 //You are given such rules for a card game:
 //You use full card deck without Jokers (52 cards).
 //At the start of the game a trump suite gets selected randomly. A deck is shuffled and each player gets half of the cards. Each turn consists of:
@@ -14,32 +15,12 @@ require_once('src/Player.php');
 //A game is played until both players do not have cards.
 //At the end of the game a winning player is one that has more cards in their score pile. Equal number of cards results in a tie.
 
-function main()
-{
-    $trumpSuite = selectTrumpSuite();
-    $cards = new Cards($trumpSuite);
-    $deck = buildDeck();
-    shuffle($deck);
-
-    $cardCount = count(Cards::FACES) * count(Cards::SUITS);
-
-    $firstHalf = array_slice($deck,0, $cardCount/2);
-    $secondHalf = array_slice($deck, $cardCount/2);
-    $player1 = new Player($firstHalf);
-    $player2 = new Player($secondHalf);
-
-    while ($player1->hasCards() && $player2->hasCards())
-    {
-        makeTurn($player1, $player2);
-    }
+use App\Src\Card;
+use App\Src\Cards;
+use App\Src\GameManager;
+use App\Src\Player;
 
 
-}
-
-/**
- * At the start of the game a trump suite gets selected randomly
- * @return string
- */
 function selectTrumpSuite(): string
 {
     $randKey = array_rand(Cards::SUITS);
@@ -60,12 +41,27 @@ function buildDeck(): array
     return $deck;
 }
 
-function makeTurn(Player $player1, Player $player2)
+function main()
 {
-//    $firstCard = $player1->getTo
+    $trumpSuite = selectTrumpSuite();
+    echo 'Trump Suite is ' . $trumpSuite . PHP_EOL;
+    $gameManager = new GameManager($trumpSuite);
+    $deck = buildDeck();
+    shuffle($deck);
 
+    $cardCount = count(Cards::FACES) * count(Cards::SUITS);
+
+    $firstHalf = array_slice($deck,0, $cardCount/2);
+    $secondHalf = array_slice($deck, $cardCount/2);
+    $player1 = new Player($firstHalf);
+    $player2 = new Player($secondHalf);
+
+    while ($player1->hasCards() && $player2->hasCards())
+    {
+        $gameManager->makeTurn($player1, $player2);
+    }
+
+    $gameManager->endGame($player1, $player2);
 }
-
-
 
 main();

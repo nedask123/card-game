@@ -1,5 +1,9 @@
 <?php
+declare(strict_types=1);
 
+namespace App\Src;
+
+use Exception;
 
 class Player
 {
@@ -24,13 +28,32 @@ class Player
         return !empty($this->deck);
     }
 
-    public function getDeck(): array
+    public function getDeckCount(): int
     {
-        return $this->deck;
+        return count($this->deck);
     }
 
-    public function getTopCard(): Card
+    public function drawFirstCard(): Card
     {
-        return $this->deck[0];
+        if (!$this->hasCards()) {
+            throw new Exception('Out of cards');
+        }
+        $card = $this->deck[0];
+        array_shift($this->deck);
+
+        return $card;
+    }
+
+    /**
+     * @param array|Card[] $cards
+     */
+    public function addToScoreDeck(array $cards): void
+    {
+        $this->scoreDeck = array_merge($this->scoreDeck, $cards);
+    }
+
+    public function getScore(): int
+    {
+        return count($this->scoreDeck);
     }
 }
